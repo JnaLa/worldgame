@@ -34,7 +34,10 @@ data = gpd.read_file(file_path)
 def draw_map_with_highlighted():
     random_index = np.random.choice(data.index)
     random_country = data.loc[[random_index]]
-    print(random_country['NAME'])
+
+
+    random_country_name = random_country['NAME'].values[0]
+    print(random_country_name)
 
     # Create fig for base map and the highlighted country
     fig, ax = plt.subplots(figsize=(12.8, 7.2))
@@ -53,7 +56,7 @@ def draw_map_with_highlighted():
     world_img = pygame.image.load(image_path)
     world_map_with_highlighted = pygame.transform.scale(world_img, (screen_width, screen_height))
 
-    return world_map_with_highlighted
+    return world_map_with_highlighted, random_country_name
 
 def main_game_loop():
     running = True
@@ -62,7 +65,7 @@ def main_game_loop():
         screen.fill(white)
 
         events = pygame.event.get()
-        
+
         # Feeding the input every frame
         textinput.update(events)
 
@@ -76,8 +79,12 @@ def main_game_loop():
                 running = False
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
-                print("input so far:  {textinput.value}")
+                print(f"input so far: {textinput.value}")
 
+            if textinput.value == highlighted_country_name:
+                print(highlighted_country_name)
+                running = False
+                
 
         pygame.display.update()
         clock.tick(60)
@@ -85,6 +92,6 @@ def main_game_loop():
     pygame.quit()
 
 # Load the base map and highlighted country images
-map_with_hl = draw_map_with_highlighted()
+map_with_hl, highlighted_country_name = draw_map_with_highlighted()
 
 main_game_loop()
