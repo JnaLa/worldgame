@@ -2,9 +2,11 @@ import pygame
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import numpy as np
+import pygame_textinput
 
 # Initialize pygame
 pygame.init()
+
 
 # Get the current screen resolution
 info = pygame.display.Info()
@@ -12,11 +14,12 @@ dock_height = 50
 screen_width = info.current_w
 screen_height = info.current_h - dock_height
 screen = pygame.display.set_mode((screen_width, screen_height), pygame.RESIZABLE)  # Use RESIZABLE for maxing
-# screen_width = 1280
-# screen_height = 720
-# screen = pygame.display.set_mode((screen_width, screen_height))
+
+# Game settings
 pygame.display.set_caption("Guess the country")
 clock = pygame.time.Clock()
+textinput = pygame_textinput.TextInputVisualizer()
+textinput.value = ''
 
 # Colors
 black = (0, 0, 0)
@@ -31,6 +34,7 @@ data = gpd.read_file(file_path)
 def draw_map_with_highlighted():
     random_index = np.random.choice(data.index)
     random_country = data.loc[[random_index]]
+    print(random_country['NAME'])
 
     # Create fig for base map and the highlighted country
     fig, ax = plt.subplots(figsize=(12.8, 7.2))
@@ -55,16 +59,27 @@ def main_game_loop():
     running = True
     
     while running:
+        screen.fill(white)
+
+        events = pygame.event.get()
+        
+        # Feeding the input every frame
+        textinput.update(events)
+
+        # Draw everything
+        screen.blit(map_with_hl, (0, 0))
+        screen.blit(textinput.surface, (10, 10))
+
         # Poll for events
-        for event in pygame.event.get():
+        for event in events:
             if event.type == pygame.QUIT:
                 running = False
 
-        # Draw everything
-        screen.fill(white)
-        screen.blit(map_with_hl, (0, 0))
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                print("input so far:  {textinput.value}")
 
-        pygame.display.flip()
+
+        pygame.display.update()
         clock.tick(60)
 
     pygame.quit()
